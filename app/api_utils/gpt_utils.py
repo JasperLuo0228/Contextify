@@ -97,6 +97,7 @@ def extract_entities_with_gpt(transcription: str) -> dict:
     - Company names
     - Course names (must include numbers or letter-number combinations, e.g., CS9 or Statistics 160A)
     - Terms (including technical terms, slang, and internet jargon)
+    - For technical terms, it should be complex enough like amino acids or quantum computing, instead of words like scientist
 
     Notes:
     - Use the following major to course prefix mapping for converting course names to standard formats:
