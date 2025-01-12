@@ -1,14 +1,16 @@
 from dotenv import load_dotenv
 import os
-import openai
+from openai import OpenAI
 
 load_dotenv()
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY")
+)
 
 def extract_entities_with_gpt(transcription: str) -> str:
     """
-    Uses GPT-3.5 to extract entities from the transcription text.
+    Uses GPT-4o to extract entities from the transcription text.
     """
     prompt = f"""
     The following is a transcription text:
@@ -28,14 +30,15 @@ def extract_entities_with_gpt(transcription: str) -> str:
     Technical terms: [term1, term2, ...]
     """
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  
+        response = client.chat.completions.create(
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": "You are an assistant that helps extract entity information from text."},
                 {"role": "user", "content": prompt}
             ]
         )
-        return response.choices[0].message["content"]
+        print("[DEBUG] Full response:", response)
+        return response["choices"][0]["message"]["content"]
     except Exception as e:
         print(f"Error during GPT processing: {e}")
         return "Error: Could not extract entities"
