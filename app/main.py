@@ -145,7 +145,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         get_person_description(person) for person in extracted_entities.get("Names", [])
                     ]
                     technical_term_definitions = [
-                        get_technical_term_definition(term) for term in extracted_entities.get("Technical terms", [])
+                        get_technical_term_definition(term) for term in extracted_entities.get("Terms", [])
                     ]
                     company_details = [
                         get_company_details(company) for company in extracted_entities.get("Companies", [])
