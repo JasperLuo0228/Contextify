@@ -11,6 +11,7 @@ from .api_utils.gpt_utils_name import get_person_summary
 from .api_utils.bing_utils import search_bing_news
 from .api_utils.wikipedia_utils import search_wikipedia
 from .api_utils.gpt_utils_company import get_company_summary
+from .api_utils.gpt_utils_term import get_term_definition
 
 app = FastAPI()
 model = None
@@ -93,6 +94,20 @@ def get_company_details(company_name: str) -> dict:
         "description": description,
         "news": news
     }
+
+def get_technical_term_definition(term: str) -> dict:
+    try:
+        definition = get_term_definiton(term)
+        return {
+            "term": term,
+            "description": description
+        }
+    except Exception as e:
+        print(f"Error fetching definition for {term}: {e}")
+        return {
+            "term": term,
+            "description": "Could not fetch definition for this term."
+        }
 
 @app.websocket("/ws/audio")
 async def websocket_endpoint(websocket: WebSocket):

@@ -83,7 +83,7 @@ def extract_entities_with_gpt(transcription: str) -> dict:
       - "Names"
       - "Companies"
       - "Courses"
-      - "Technical terms"
+      - "Terms"
     """
     major_prompt = "\n".join([f"{major}: {short}" for major, short in MAJOR_MAP.items()])
     
@@ -96,7 +96,7 @@ def extract_entities_with_gpt(transcription: str) -> dict:
     - Names of notable people (famous figures only)
     - Company names
     - Course names (must include numbers or letter-number combinations, e.g., CS9 or Statistics 160A)
-    - Technical terms
+    - Terms (including technical terms, slang, and internet jargon)
 
     Notes:
     - Use the following major to course prefix mapping for converting course names to standard formats:
