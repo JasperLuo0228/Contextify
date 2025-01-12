@@ -9,6 +9,8 @@ from .audio_processing.audio_utils import process_audio
 from .api_utils.gpt_utils import extract_entities_with_gpt
 from .api_utils.gpt_utils_name import get_person_summary
 from .api_utils.bing_utils import search_bing_news
+from .api_utils.wikipedia_utils import search_wikipedia
+from .api_utils.gpt_utils_company import get_company_summary
 
 app = FastAPI()
 model = None
@@ -27,6 +29,9 @@ courses_df = pd.read_csv("app/All_Courses.csv")
 def get_course_description(course_code: str) -> dict:
     course = courses_df[courses_df['Code'] == course_code]
     if not course.empty:
+        print(course_code)
+        print(course.iloc[0]['Name'])
+        print(course.iloc[0]['Description'])
         return {
             "course_code": course_code,
             "course_name": course.iloc[0]['Name'],
@@ -53,15 +58,13 @@ def get_person_description(person_name: str) -> dict:
             "description": "Could not fetch description for this person."
         }
 
-def get_technical_term_definition(term: str) -> dict:
-    return {
-        "term": term,
-        "description": "This is a placeholder definition for the technical term."
-    }
-
 def get_company_details(company_name: str) -> dict:
     api_key = os.getenv("BING_API_KEY")
     news = []
+    description = search_wikipedia(company_name)
+
+    if "Error" in description:
+        description = get_company_summary(company_name)
 
     try:
         result = search_bing_news(api_key=api_key, query=company_name, count=2)
@@ -79,7 +82,6 @@ def get_company_details(company_name: str) -> dict:
                 "image_url": "No photo"
             })
     except Exception as e:
-        print(f"Error fetching news: {e}")
         news.append({
             "title": "Error fetching news",
             "summary": str(e),
@@ -88,7 +90,7 @@ def get_company_details(company_name: str) -> dict:
 
     return {
         "company_name": company_name,
-        "description": "This is a placeholder description for the company.",
+        "description": description,
         "news": news
     }
 

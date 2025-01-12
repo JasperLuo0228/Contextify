@@ -29,17 +29,15 @@ def search_wikipedia(query: str, language="en") -> str:
     summary = fetch_summary(query)
 
     if summary == "DISAMBIGUATION":
-        print(f"『{query}』 has disambiguation，try to search '{query} (company)'...")
         summary = fetch_summary(f"{query} (company)")
 
     if summary is None and is_valid_for_company_suffix(query):
-        print(f"Could not find'{query}', Try to research'{query} (company)'...")
         summary = fetch_summary(f"{query} (company)")
 
     if summary is None:
         return "Error: Could not fetch Wikipedia information."
 
     sentences = re.split(r'(?<=[.!?。！？‥])\s+', summary)
-    first_two_sentences = ' '.join(sentences[:1])
+    first_two_sentences = ' '.join(sentences[:2])
 
     return first_two_sentences
