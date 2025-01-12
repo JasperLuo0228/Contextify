@@ -1,11 +1,11 @@
 import tempfile
 from pydub import AudioSegment
-import noisereduce as nr
+# import noisereduce as nr
 import numpy as np
 
 def process_audio(raw_path: str, big_endian: bool = False) -> str:
     """
-    Converts raw PCM data to WAV format, with optional byte order adjustment and noise reduction.
+    Converts raw PCM data to WAV format, with optional byte order adjustment.
     Args:
         raw_path (str): Path to the raw PCM file.
         big_endian (bool): Whether the PCM data is in big-endian byte order.
@@ -37,7 +37,7 @@ def process_audio(raw_path: str, big_endian: bool = False) -> str:
         )
         print("[DEBUG] Successfully parsed raw PCM to AudioSegment")
 
-        print("[DEBUG] Starting resampling and noise reduction...")
+        print("[DEBUG] Starting resampling...")
         audio_segment = (
             audio_segment
             .set_frame_rate(16000)
@@ -45,28 +45,28 @@ def process_audio(raw_path: str, big_endian: bool = False) -> str:
             .set_sample_width(2)
         )
 
-        samples = np.array(audio_segment.get_array_of_samples())
-        sr = audio_segment.frame_rate
-        samples_float = samples.astype(np.float32)
+        # samples = np.array(audio_segment.get_array_of_samples())
+        # sr = audio_segment.frame_rate
+        # samples_float = samples.astype(np.float32)
 
-        reduced_samples = nr.reduce_noise(y=samples_float, sr=sr)
-        print("[DEBUG] Noise reduction complete.")
+        # reduced_samples = nr.reduce_noise(y=samples_float, sr=sr)
+        # print("[DEBUG] Noise reduction complete.")
 
-        reduced_int16 = reduced_samples.astype(np.int16)
+        # reduced_int16 = reduced_samples.astype(np.int16)
 
-        denoised_segment = AudioSegment(
-            data=reduced_int16.tobytes(),
-            sample_width=2,
-            frame_rate=sr,
-            channels=1
-        )
+        # denoised_segment = AudioSegment(
+        #     data=reduced_int16.tobytes(),
+        #     sample_width=2,
+        #     frame_rate=sr,
+        #     channels=1
+        # )
 
-        audio_segment = denoised_segment
+        # audio_segment = denoised_segment
 
         with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as wav_file:
             wav_path = wav_file.name
         audio_segment.export(wav_path, format="wav")
-        print(f"[DEBUG] Exported denoised PCM to WAV: {wav_path}")
+        print(f"[DEBUG] Exported PCM to WAV: {wav_path}")
 
         return wav_path
 

@@ -3,9 +3,12 @@ from contextlib import asynccontextmanager
 import whisper
 import tempfile
 import os
+import pandas as pd
 
 from .audio_processing.audio_utils import process_audio
 from .api_utils.gpt_utils import extract_entities_with_gpt
+from .api_utils.gpt_utils_name import get_person_summary
+from .api_utils.bing_utils import search_bing_news
 
 app = FastAPI()
 model = None
@@ -20,18 +23,35 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+courses_df = pd.read_csv("app/All_Courses.csv")
 def get_course_description(course_code: str) -> dict:
-    return {
-        "course_code": course_code,
-        "course_name": "Sample Course Name",
-        "description": "This is a placeholder description for the course."
-    }
+    course = courses_df[courses_df['Code'] == course_code]
+    if not course.empty:
+        return {
+            "course_code": course_code,
+            "course_name": course.iloc[0]['Name'],
+            "description": course.iloc[0]['Description']
+        }
+    else:
+        return {
+            "course_code": course_code,
+            "course_name": "Course not found",
+            "description": "N/A"
+        }
 
 def get_person_description(person_name: str) -> dict:
-    return {
-        "person_name": person_name,
-        "description": "This is a placeholder description for the person."
-    }
+    try:
+        description = get_person_summary(person_name)
+        return {
+            "person_name": person_name,
+            "description": description
+        }
+    except Exception as e:
+        print(f"Error fetching description for {person_name}: {e}")
+        return {
+            "person_name": person_name,
+            "description": "Could not fetch description for this person."
+        }
 
 def get_technical_term_definition(term: str) -> dict:
     return {
@@ -40,21 +60,36 @@ def get_technical_term_definition(term: str) -> dict:
     }
 
 def get_company_details(company_name: str) -> dict:
+    api_key = os.getenv("BING_API_KEY")
+    news = []
+
+    try:
+        result = search_bing_news(api_key=api_key, query=company_name, count=2)
+        if "value" in result:
+            for article in result["value"]:
+                news.append({
+                    "title": article.get("name", "No title"),
+                    "summary": article.get("description", "No summary"),
+                    "image_url": article.get("image", {}).get("thumbnail", {}).get("contentUrl", "No photo")
+                })
+        else:
+            news.append({
+                "title": "No news found",
+                "summary": "No news summary available",
+                "image_url": "No photo"
+            })
+    except Exception as e:
+        print(f"Error fetching news: {e}")
+        news.append({
+            "title": "Error fetching news",
+            "summary": str(e),
+            "image_url": "No photo"
+        })
+
     return {
         "company_name": company_name,
         "description": "This is a placeholder description for the company.",
-        "news": [
-            {
-                "title": "Sample News Title 1",
-                "summary": "This is a placeholder summary for news 1.",
-                "image_url": "https://www.groovypost.com/wp-content/uploads/2015/08/rapa-valley-bing-feature.jpg"
-            },
-            {
-                "title": "Sample News Title 2",
-                "summary": "This is a placeholder summary for news 2.",
-                "image_url": "https://www.groovypost.com/wp-content/uploads/2015/08/rapa-valley-bing-feature.jpg"
-            }
-        ]
+        "news": news
     }
 
 @app.websocket("/ws/audio")
@@ -113,7 +148,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 finally:
                     audio_data = b""
                     os.remove(raw_path)
-                    #os.remove(wav_path)
+                    os.remove(wav_path)
                     print(f"[DEBUG] Cleaned up temporary files: {raw_path}, {wav_path}")
     except WebSocketDisconnect:
         print("WebSocket connection closed")
