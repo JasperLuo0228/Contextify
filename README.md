@@ -6,15 +6,12 @@ Contextify is a real-time context extraction and definition application designed
 This tool is ideal for professionals, students, and anyone seeking clarity in fast-paced or highly technical environments.
 ## Get Started 
 1. Clone the Github Repository
-   git clone https://github.com/JasperLuo0228/Contextify.git
+   （git clone https://github.com/JasperLuo0228/Contextify.git）
 2. Install Dependencies (see requirements.txt)
-   `pip install -r requirements.txt`
+   （`pip install -r requirements.txt`）
 3. Set up API keys
-   """
-   API_KEY_GOOGLE=your_google_api_key
-   API_KEY_WIKIPEDIA=your_wikipedia_api_key
-   """
-5. Run the application
+   （`API_KEY_GOOGLE=your_google_api_key` `API_KEY_WIKIPEDIA=your_wikipedia_api_key`）
+4. Run the application
    python app.py
 ## Inspiration
 During meetings or professional conversations, we often encounter technical terms, unfamiliar courses, or references from fields outside our expertise. This can make it challenging to stay focused and fully grasp the ongoing discussion. Additionally, staying updated on global events or news while managing these conversations can be overwhelming. This inspired us to develop Contextify, an app that provides real-time information and context while others introduce new topics. By delivering insights simultaneously, it helps users quickly capture and understand knowledge, making conversations more productive and engaging.
